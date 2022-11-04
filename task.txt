@@ -1,0 +1,128 @@
+1. Оптимизация/рефакторинг класса, где используется абстракции из Collection Framework.
+
+	Есть два класса: Company и Employee
+
+	Employee - это pojo, который хранит в себе некую информацию о сотруднике.
+
+	Compamy - это класс, который содержит в себе список Employee и позволяет производить с ними различные операции, такие "нанять" (addEmployee()) и "уволить" (removeEmployee()).
+	Так же этот класс может производить объединение текущий компании с другой (incorporate()).
+
+	1. Добавить в метод addEmployee() проверку на лимит количества сотрудников, если количество сотрудников равно лимиту, то необходимо выбрасывать исключение.
+	2. Изменить класс Company так чтобы удаление было так же по сотруднику, как и добавление.
+	3. Реализовать метод incorporate(), который должен:
+	   - Добавлять сотрудников из компании пришедшей на вход в текущую компанию до достижения лимита (EMPLOYEE_LIMIT);
+	   - Удалять сотрудников из компании пришедшей на вход, которые были добавлены в текущую компанию.
+
+	   Например:
+	   public class CompanyServiceImpl impements CompanyService {
+
+	   	   @Override
+	       public void handleCompany(Company source, Company destination) {
+	           // Перевод сотрудников из компании source в destination
+	           // В source находится 1500 сотрудников, в destination находится 9000 сотрудников
+	           destination.incorporate(sourse);
+	           // После метода incorporate() в source должно остаться 500 не переведенных сотрудников, а в destination стать 10000
+	       }
+	   }
+
+	---
+
+	public class Employee {
+		
+		private UUID id;
+		private String firstName;
+		private String middleName;
+		private String lastName;
+		...
+
+		// getters
+		// setters
+
+	}
+
+	public class Company {
+
+	    private static final int EMPLOYEE_LIMIT = 10_000; 
+	    private List<Employee> employees;
+
+	    public Company() { 
+	        employees = new ArrayList<>();         
+	    }
+
+	    public void addEmployee(Employee employee) { 
+	        employees.add(employee);         
+	    }
+
+	    public Employee removeEmployee(int index) { 
+	        return employees.remove(index);         
+	    }
+
+	    public void incorporate(Company company) {
+
+	    }
+	}
+
+
+2. Задача на умение писать SQL-запросы средней сложности
+
+
+    - Вывести hacker_id, name и total_score всех участников, отсортировав записи по total_score в порядке убывания. 
+    - Если несколько участников набрали одинаковое количество очков, то отсортировать их по name в порядке возрастания. 
+    - Требуется исключить всех участников с total_score равным нулю.
+
+    Total_score участника равна сумме максимумов для каждой задачи.
+
+    ---
+
+	SQL для задачи:
+    create table hackers
+    (
+        id   bigserial
+            constraint hackers_pk
+                primary key,
+        name varchar(255) not null
+    );
+
+	create table challenges
+    (
+    id   bigserial
+        constraint challenges_pk
+            primary key,
+    name varchar(255) not null
+    );
+
+    create table submissions
+    (
+        id           bigserial
+            constraint submissions_pk
+                primary key,
+        hacker_id    bigint  not null
+            constraint submissions_hacker_id_fk
+                references hackers,
+        challenge_id bigint  not null
+            constraint submissions_challenge_id_fk
+                references challenges,
+        score        integer not null
+    );
+    
+    --
+
+    INSERT INTO hackers (id, name) VALUES (1, 'Иван');
+    INSERT INTO hackers (id, name) VALUES (2, 'Екатерина');
+    INSERT INTO hackers (id, name) VALUES (3, 'Александр');
+    INSERT INTO hackers (id, name) VALUES (4, 'Олег');
+
+    INSERT INTO challenges (id, name) VALUES (1, 'Inject SQL');
+    INSERT INTO challenges (id, name) VALUES (2, 'XSS');
+    INSERT INTO challenges (id, name) VALUES (3, 'Shatter Attack');
+    
+    INSERT INTO submissions (id, hacker_id, challenge_id, score) VALUES (1, 1, 2, 91);
+    INSERT INTO submissions (id, hacker_id, challenge_id, score) VALUES (2, 1, 3, 73);
+    INSERT INTO submissions (id, hacker_id, challenge_id, score) VALUES (3, 1, 3, 86);
+    INSERT INTO submissions (id, hacker_id, challenge_id, score) VALUES (5, 2, 3, 93);
+    INSERT INTO submissions (id, hacker_id, challenge_id, score) VALUES (6, 3, 1, 115);
+    INSERT INTO submissions (id, hacker_id, challenge_id, score) VALUES (4, 2, 1, 22);
+    INSERT INTO submissions (id, hacker_id, challenge_id, score) VALUES (7, 4, 1, 0);
+
+
+    
